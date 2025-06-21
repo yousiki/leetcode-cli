@@ -30,6 +30,7 @@ pub struct Problem {
     pub starred: bool,
     pub status: String,
     pub desc: String,
+    pub fstatus: String,
 }
 
 impl Problem {
@@ -50,6 +51,15 @@ impl Problem {
         res += format!("{} Percent: {}%\n\n", comment_leading, self.percent).as_str();
 
         res + "\n"
+    }
+
+    pub fn file_status_indicator(&self) -> &str {
+        match (self.status.as_str(), self.fstatus.as_str()) {
+            ("ac", "exists") => "🎯", // Solved and file exists
+            (_, "exists") => "🚧",    // File exists but not solved
+            ("ac", _) => "🌐",        // Solved but no local file
+            _ => "  ",                // Not solved and no local file
+        }
     }
 }
 
@@ -134,10 +144,14 @@ impl std::fmt::Display for Problem {
         if pct.len() < 5 {
             pct.push_str(&"0".repeat(5 - pct.len()));
         }
+
+        let file_status_indicator = self.file_status_indicator();
+
         write!(
             f,
-            "  {} {} [{}] {} {} ({} %)",
+            "  {} {} {} [{}] {} {} ({} %)",
             lock,
+            file_status_indicator,
             done,
             id,
             name,

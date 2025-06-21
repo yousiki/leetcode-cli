@@ -35,6 +35,7 @@ pub fn problem(problems: &mut Vec<Problem>, v: Value) -> Option<()> {
             starred: p.get("is_favor")?.as_bool()?,
             status: p.get("status")?.as_str().unwrap_or("Null").to_string(),
             desc: String::new(),
+            fstatus: String::from("unknown"),
         });
     }
 

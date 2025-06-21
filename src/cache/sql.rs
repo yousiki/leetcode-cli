@@ -10,7 +10,8 @@ pub static CREATE_PROBLEMS_IF_NOT_EXISTS: &str = r#"
     slug TEXT NOT NULL,
     starred BOOLEAN NOT NULL DEFAULT 0,
     status TEXT NOT NULL,
-    desc TEXT NOT NULL DEFAULT ""
+    desc TEXT NOT NULL DEFAULT "",
+    fstatus TEXT NOT NULL DEFAULT "unknown"
   )
 "#;
 

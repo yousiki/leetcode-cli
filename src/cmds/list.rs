@@ -66,6 +66,7 @@ static LIST_AFTER_HELP: &str = r#"EXAMPLES:
     leetcode list -q eD             List questions that with easy level and not done
     leetcode list -t linked-list    List questions that under tag "linked-list"
     leetcode list -r 50 100         List questions that has id in between 50 and 100
+    leetcode list -f                List questions with updated file status
 "#;
 
 /// implement Command trait for `list`
@@ -125,6 +126,13 @@ impl Command for ListCommand {
                     .num_args(1)
                     .help("Keyword in select query"),
             )
+            .arg(
+                Arg::new("refresh-files")
+                    .short('f')
+                    .long("refresh-files")
+                    .help("Update file status cache by scanning local files")
+                    .action(ArgAction::SetTrue),
+            )
     }
 
     /// `list` command handler
@@ -142,6 +150,14 @@ impl Command for ListCommand {
         if ps.is_empty() {
             cache.download_problems().await?;
             return Self::handler(m).await;
+        }
+
+        // refresh file status if requested
+        if m.contains_id("refresh-files") {
+            info!("Refreshing file status cache...");
+            cache.update_all_file_status()?;
+            // Reload problems to get updated file status
+            ps = cache.get_problems()?;
         }
 
         // filtering...

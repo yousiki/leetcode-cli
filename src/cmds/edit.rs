@@ -221,6 +221,10 @@ impl Command for EditCommand {
             .envs(envs)
             .args(args)
             .status()?;
+
+        // Update file status since we just created/edited the file
+        cache.update_problem_file_status(problem.id, true)?;
+
         Ok(())
     }
 }

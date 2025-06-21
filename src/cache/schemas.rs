@@ -12,6 +12,7 @@ table! {
         starred -> Bool,
         status -> Text,
         desc -> Text,
+        fstatus -> Text,
     }
 }
 

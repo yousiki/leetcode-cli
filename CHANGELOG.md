@@ -1,3 +1,14 @@
+## v0.4.7
+
+- Add file status indicators to list command showing source code file existence
+  - 🎯 Problem solved and source file exists locally
+  - 🚧 Source file exists locally but problem not solved yet  
+  - 🌐 Problem solved but no local source file
+  - No indicator: Problem not solved and no local source file
+- Add `--refresh-files` flag to update file status cache by scanning local files
+- Auto-update file status when creating files via edit command
+- Database schema enhancement with `fstatus` field for efficient file status caching
+
 ## v0.4.1
 
 - Search problems by name

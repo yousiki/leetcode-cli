@@ -384,6 +384,50 @@ impl Cache {
         Ok(res)
     }
 
+    /// Update file status for a single problem
+    pub fn update_problem_file_status(
+        &self,
+        problem_id: i32,
+        file_exists: bool,
+    ) -> Result<(), Error> {
+        let mut c = self.conn()?;
+        let target = problems.filter(id.eq(problem_id));
+        let file_status = if file_exists { "exists" } else { "missing" };
+        diesel::update(target)
+            .set(fstatus.eq(file_status))
+            .execute(&mut c)?;
+        Ok(())
+    }
+
+    /// Batch update file status for all problems
+    pub fn update_all_file_status(&self) -> Result<(), Error> {
+        use crate::helper::code_path;
+        use std::path::Path;
+
+        let mut c = self.conn()?;
+        let all_problems: Vec<Problem> = problems.load(&mut c)?;
+
+        for problem in all_problems {
+            // Skip non-algorithm problems
+            if problem.category != "algorithms" {
+                continue;
+            }
+
+            let file_exists = match code_path(&problem, None) {
+                Ok(path) => Path::new(&path).exists(),
+                Err(_) => false,
+            };
+
+            let file_status = if file_exists { "exists" } else { "missing" };
+            let target = problems.filter(id.eq(problem.id));
+            diesel::update(target)
+                .set(fstatus.eq(file_status))
+                .execute(&mut c)?;
+        }
+
+        Ok(())
+    }
+
     /// New cache
     pub fn new() -> Result<Self, Error> {
         let conf = Config::locate()?;
