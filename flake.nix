@@ -148,20 +148,10 @@
         checks.formatting = treefmtEval.config.build.check self;
       }
     )
-    // (
-      let
-        overlay = (
-          final: prev: {
-            inherit (self.packages) leetcode-cli;
-          }
-        );
-      in
-      {
-        # Overlays
-        overlays = {
-          default = overlay;
-          leetcode-cli = overlay;
-        };
-      }
-    );
+    // {
+      # Overlays
+      overlays.default = final: prev: {
+        leetcode-cli = self.packages.${final.system}.leetcode-cli;
+      };
+    };
 }
