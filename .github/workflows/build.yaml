@@ -1,0 +1,38 @@
+name: Build
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        os:
+          - ubuntu-latest
+          - ubuntu-24.04-arm
+          - macos-latest
+          - macos-13
+    runs-on: ${{ matrix.os }}
+    steps:
+      - name: Checkout the source code
+        uses: actions/checkout@v4
+      - name: Install nix and flakes
+        uses: DeterminateSystems/nix-installer-action@v17
+      - name: Setup cachix cache
+        uses: cachix/cachix-action@v16
+        with:
+          name: nichijou
+          authToken: ${{ secrets.CACHIX_AUTH_TOKEN }}
+          extraPullNames: nix-community,numtide
+      - name: Build package
+        run: nix build --no-link

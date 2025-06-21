@@ -1,9 +1,10 @@
 version: 2
+
 updates:
   - package-ecosystem: "cargo"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
       day: "sunday"
     commit-message:
       prefix: "chore(dep): "
@@ -15,7 +16,7 @@ updates:
   - package-ecosystem: "github-actions"
     directory: "/"
     schedule:
-      interval: "monthly"
+      interval: "weekly"
       day: "sunday"
     commit-message:
       prefix: "chore(dep): "
