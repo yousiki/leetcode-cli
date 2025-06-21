@@ -1,8 +1,9 @@
 {
-  description = "Leet your code in command-line.";
+  description = "Leet your code in command-line. Forked by yousiki.";
 
   inputs = {
     nixpkgs.url = "github:NixOS/nixpkgs/nixpkgs-unstable";
+
     utils.url = "github:numtide/flake-utils";
 
     naersk = {
@@ -14,17 +15,25 @@
       url = "github:oxalica/rust-overlay";
       inputs.nixpkgs.follows = "nixpkgs";
     };
+
+    treefmt-nix = {
+      url = "github:numtide/treefmt-nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
-  outputs = {
-    self,
-    nixpkgs,
-    utils,
-    naersk,
-    rust-overlay,
-    ...
+  outputs =
+    {
+      self,
+      nixpkgs,
+      utils,
+      naersk,
+      rust-overlay,
+      treefmt-nix,
+      ...
     }:
-    utils.lib.eachDefaultSystem (system:
+    utils.lib.eachDefaultSystem (
+      system:
       let
         overlays = [ (import rust-overlay) ];
 
@@ -36,43 +45,61 @@
 
         naersk' = pkgs.callPackage naersk {
           cargo = toolchain;
-          rustc = toolchain;
           clippy = toolchain;
+          rustc = toolchain;
         };
 
         nativeBuildInputs = with pkgs; [
           pkg-config
         ];
 
-        darwinBuildInputs = pkgs.lib.optionals pkgs.stdenv.isDarwin [
-          pkgs.darwin.apple_sdk.frameworks.Security
-          pkgs.darwin.apple_sdk.frameworks.SystemConfiguration
-        ];
+        darwinBuildInputs =
+          with pkgs;
+          lib.optionals stdenv.isDarwin [
+            apple-sdk
+          ];
 
-        buildInputs = with pkgs; [
-          openssl
-          dbus
-          sqlite
-        ] ++ darwinBuildInputs;
+        buildInputs =
+          with pkgs;
+          [
+            dbus
+            openssl
+            sqlite
+          ]
+          ++ darwinBuildInputs;
 
-        package = naersk'.buildPackage rec {
+        cargoToml = builtins.fromTOML (builtins.readFile ./Cargo.toml);
+
+        version = cargoToml.package.version;
+
+        package = naersk'.buildPackage {
+          inherit version buildInputs nativeBuildInputs;
+
           pname = "leetcode-cli";
-          version = "git";
 
           src = ./.;
+
           doCheck = true; # run `cargo test` on build
 
-          inherit buildInputs nativeBuildInputs;
+          cargoTestOptions =
+            x:
+            x
+            ++ [
+              "--all-features"
+            ];
+
+          nativeCheckInputs = with pkgs; [
+            python3
+          ];
 
           buildNoDefaultFeatures = true;
 
           buildFeatures = "git";
 
           meta = with pkgs.lib; {
-            description = "Leet your code in command-line.";
-            homepage = "https://github.com/clearloop/leetcode-cli";
+            description = "Leet your code in command-line. Forked by yousiki.";
+            homepage = "https://github.com/yousiki/leetcode-cli";
             licenses = licenses.mit;
-            maintainers = with maintainers; [ congee ];
             mainProgram = "leetcode";
           };
 
@@ -83,27 +110,57 @@
           # CFG_RELEASE = "${rustPlatform.rust.rustc.version}-stable";
           CFG_RELEASE_CHANNEL = "stable";
         };
+
+        treefmtEval = treefmt-nix.lib.evalModule pkgs ./treefmt.nix;
       in
-        {
-        defaultPackage = package;
-        overlay = final: prev: { leetcode-cli = package; };
+      {
+        # Packages
+        packages = {
+          default = package;
+          leetcode-cli = package;
+        };
 
-        devShell = with pkgs; mkShell {
-          name = "shell";
-          inherit nativeBuildInputs;
+        # DevShells
+        devShells.default =
+          with pkgs;
+          mkShell {
+            name = "leetcode-cli-dev";
+            inherit nativeBuildInputs;
 
-          buildInputs = buildInputs ++ [
-            toolchain
-            cargo-edit
-            cargo-bloat
-            cargo-audit
-            cargo-about
-            cargo-outdated
-          ];
+            buildInputs = buildInputs ++ [
+              toolchain
+              cargo-about
+              cargo-audit
+              cargo-bloat
+              cargo-edit
+              cargo-outdated
+            ];
 
-          PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
-          RUST_BACKTRACE = "full";
-          LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;
+            PKG_CONFIG_PATH = "${pkgs.openssl.dev}/lib/pkgconfig";
+            RUST_BACKTRACE = "full";
+            LD_LIBRARY_PATH = lib.makeLibraryPath buildInputs;
+          };
+
+        # Formatters
+        formatter = treefmtEval.config.build.wrapper;
+
+        # Checks
+        checks.formatting = treefmtEval.config.build.check self;
+      }
+    )
+    // (
+      let
+        overlay = (
+          final: prev: {
+            inherit (self.packages) leetcode-cli;
+          }
+        );
+      in
+      {
+        # Overlays
+        overlays = {
+          default = overlay;
+          leetcode-cli = overlay;
         };
       }
     );
