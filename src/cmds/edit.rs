@@ -61,7 +61,7 @@ impl Command for EditCommand {
 
     /// `edit` handler
     async fn handler(m: &ArgMatches) -> Result<()> {
-        use crate::{cache::models::Question, Cache};
+        use crate::{Cache, cache::models::Question};
         use std::fs::File;
         use std::io::Write;
         use std::path::Path;

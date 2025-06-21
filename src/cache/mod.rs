@@ -22,14 +22,12 @@ pub fn conn(p: String) -> SqliteConnection {
 }
 
 /// Condition submit or test
-#[derive(Clone, Debug)]
-#[derive(Default)]
+#[derive(Clone, Debug, Default)]
 pub enum Run {
     Test,
     #[default]
     Submit,
 }
-
 
 /// Requests if data not download
 #[derive(Clone)]
@@ -188,7 +186,7 @@ impl Cache {
                         Err(Error::CookieError)
                     } else {
                         Err(Error::PremiumError)
-                    }
+                    };
                 }
                 Some(true) => (),
             }

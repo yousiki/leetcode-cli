@@ -32,7 +32,7 @@ mod list;
 mod pick;
 mod stat;
 mod test;
-pub use completions::{completion_handler, CompletionCommand};
+pub use completions::{CompletionCommand, completion_handler};
 pub use data::DataCommand;
 pub use edit::EditCommand;
 pub use exec::ExecCommand;
