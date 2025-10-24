@@ -132,7 +132,7 @@ pub fn user(v: Value) -> Option<Option<(String, bool)>> {
 pub use ss::ssr;
 /// string or squence
 mod ss {
-    use serde::{de, Deserialize, Deserializer};
+    use serde::{Deserialize, Deserializer, de};
     use std::fmt;
     use std::marker::PhantomData;
 

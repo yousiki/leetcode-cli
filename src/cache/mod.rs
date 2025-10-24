@@ -186,7 +186,7 @@ impl Cache {
                         Err(Error::CookieError)
                     } else {
                         Err(Error::PremiumError)
-                    }
+                    };
                 }
                 Some(true) => (),
             }

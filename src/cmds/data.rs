@@ -1,6 +1,6 @@
 //! Cache managger
 use super::Command;
-use crate::{cache::Cache, helper::Digit, Error};
+use crate::{Error, cache::Cache, helper::Digit};
 use async_trait::async_trait;
 use clap::{Arg, ArgAction, ArgMatches, Command as ClapCommand};
 use colored::Colorize;

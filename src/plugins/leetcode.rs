@@ -1,11 +1,11 @@
 use self::req::{Json, Mode, Req};
 use crate::{
-    config::{self, Config},
     Result,
+    config::{self, Config},
 };
 use reqwest::{
-    header::{HeaderMap, HeaderName, HeaderValue},
     Client, ClientBuilder, Response,
+    header::{HeaderMap, HeaderName, HeaderValue},
 };
 use std::{collections::HashMap, str::FromStr, time::Duration};
 
@@ -277,7 +277,7 @@ impl LeetCode {
 mod req {
     use super::LeetCode;
     use crate::err::Error;
-    use reqwest::{header::HeaderMap, Client, Response};
+    use reqwest::{Client, Response, header::HeaderMap};
     use std::collections::HashMap;
 
     /// Standardize json format

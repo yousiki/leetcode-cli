@@ -30,7 +30,7 @@ impl Command for StatCommand {
 
     /// `stat` handler
     async fn handler(_m: &ArgMatches) -> Result<(), crate::err::Error> {
-        use crate::{helper::Digit, Cache};
+        use crate::{Cache, helper::Digit};
 
         let cache = Cache::new()?;
         let res = cache.get_problems()?;
